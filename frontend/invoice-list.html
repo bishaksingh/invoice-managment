@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoices — InvoicePro</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #714B67;
+    --primary-dark: #5a3a52;
+    --accent: #00A09D;
+    --bg: #F0EEF1;
+    --white: #FFFFFF;
+    --text: #2c2c2c;
+    --muted: #6c757d;
+    --border: #e0dde2;
+    --sidebar-w: 240px;
+  }
+  body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--primary-dark);
+    height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+  .sidebar-brand {
+    padding: 22px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sidebar-logo {
+    width: 36px; height: 36px;
+    background: white;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sidebar-logo svg { width: 22px; height: 22px; }
+  .sidebar-brand span { font-size: 17px; font-weight: 700; color: white; }
+  .sidebar-nav { padding: 16px 12px; flex: 1; }
+  .nav-section { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.4); letter-spacing: 1.2px; text-transform: uppercase; margin: 16px 8px 8px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: rgba(255,255,255,0.75);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+  .nav-item.active { background: var(--accent); color: white; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .user-info { display: flex; align-items: center; gap: 10px; }
+  .user-avatar {
+    width: 34px; height: 34px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: white;
+  }
+  .user-name { font-size: 13px; font-weight: 600; color: white; }
+  .user-email { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .logout-btn {
+    margin-top: 10px;
+    display: flex; align-items: center; gap: 8px;
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 6px 0;
+  }
+  .logout-btn:hover { color: white; }
+
+  /* MAIN */
+  .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+
+  /* TOP BAR */
+  .topbar {
+    background: white;
+    padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar h1 { font-size: 20px; font-weight: 700; }
+  .topbar-actions { display: flex; align-items: center; gap: 12px; }
+  .btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+  .btn-outline { background: white; color: var(--text); border: 1.5px solid var(--border); }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* CONTENT */
+  .content { padding: 28px 32px; }
+
+  /* STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 22px;
+    border: 1px solid var(--border);
+  }
+  .stat-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .stat-value { font-size: 24px; font-weight: 700; color: var(--text); }
+  .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .stat-card.paid .stat-value { color: #16a34a; }
+  .stat-card.pending .stat-value { color: #d97706; }
+  .stat-card.overdue .stat-value { color: #dc2626; }
+
+  /* FILTERS */
+  .filters {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 9px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    background: #fafafa;
+  }
+  .search-input:focus { outline: none; border-color: var(--primary); background: white; }
+  .filter-tabs { display: flex; gap: 4px; }
+  .filter-tab {
+    padding: 7px 14px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    color: var(--muted);
+  }
+  .filter-tab:hover { background: var(--bg); }
+  .filter-tab.active { background: var(--primary); color: white; }
+
+  /* TABLE */
+  .table-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: #f8f6f9; }
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid #f0eef1;
+    transition: background 0.1s;
+    cursor: pointer;
+  }
+  tbody tr:hover { background: #faf8fb; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 14px 16px; font-size: 14px; }
+  .inv-number { font-weight: 600; color: var(--primary); }
+  .customer-name { font-weight: 500; }
+  .customer-email { font-size: 12px; color: var(--muted); }
+  .amount { font-weight: 700; font-size: 15px; }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  .status-paid { background: #dcfce7; color: #15803d; }
+  .status-pending { background: #fef3c7; color: #92400e; }
+  .status-overdue { background: #fee2e2; color: #b91c1c; }
+  .status-draft { background: #f1f5f9; color: #475569; }
+  .status-cancelled { background: #f1f5f9; color: #6b7280; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .action-btn {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: white;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text);
+    transition: all 0.15s;
+  }
+  .action-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty-state h3 { font-size: 16px; margin-bottom: 8px; }
+  .empty-state p { font-size: 13px; }
+  .loading { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 30 30" fill="none"><rect x="3" y="3" width="24" height="24" rx="4" fill="#714B67"/><path d="M8 10h14M8 15h10M8 20h7" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+    <span>InvoicePro</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main Menu</div>
+    <a class="nav-item" href="invoice-list.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item active" href="invoice-list.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Invoices
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Customers
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      Payments
+    </a>
+    <div class="nav-section">Reports</div>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Analytics
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 115 19.07"/></svg>
+      Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar" id="userAvatar">D</div>
+      <div>
+        <div class="user-name" id="userName">Demo User</div>
+        <div class="user-email" id="userEmail">demo@invoice.com</div>
+      </div>
+    </div>
+    <div class="logout-btn" onclick="logout()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Logout
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <h1>📄 Invoices</h1>
+    <div class="topbar-actions">
+      <button class="btn btn-outline" onclick="location.reload()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+      <button class="btn btn-primary" onclick="window.location.href='invoice-view.html'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Invoice
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Invoices</div>
+        <div class="stat-value" id="totalCount">—</div>
+        <div class="stat-sub">All time</div>
+      </div>
+      <div class="stat-card paid">
+        <div class="stat-label">Paid</div>
+        <div class="stat-value" id="paidAmount">—</div>
+        <div class="stat-sub" id="paidCount">0 invoices</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value" id="pendingAmount">—</div>
+        <div class="stat-sub" id="pendingCount">0 invoices</div>
+      </div>
+      <div class="stat-card overdue">
+        <div class="stat-label">Overdue</div>
+        <div class="stat-value" id="overdueAmount">—</div>
+        <div class="stat-sub" id="overdueCount">0 invoices</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <input class="search-input" type="text" id="searchInput" placeholder="🔍  Search invoices, customers..." oninput="filterInvoices()">
+      <div class="filter-tabs">
+        <div class="filter-tab active" onclick="setFilter('all', this)">All</div>
+        <div class="filter-tab" onclick="setFilter('draft', this)">Draft</div>
+        <div class="filter-tab" onclick="setFilter('pending', this)">Pending</div>
+        <div class="filter-tab" onclick="setFilter('paid', this)">Paid</div>
+        <div class="filter-tab" onclick="setFilter('overdue', this)">Overdue</div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Invoice #</th>
+            <th>Customer</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="invoiceTable">
+          <tr><td colspan="7" class="loading">Loading invoices...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:5000/api';
+let allInvoices = [];
+let currentFilter = 'all';
+
+// Auth check
+const token = localStorage.getItem('token');
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+if (!token) window.location.href = 'login.html';
+
+// Set user info
+document.getElementById('userName').textContent = user.name || 'User';
+document.getElementById('userEmail').textContent = user.email || '';
+document.getElementById('userAvatar').textContent = (user.name || 'U')[0].toUpperCase();
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
+function fmt(n) {
+  return '₹' + (n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function calcTotal(inv) {
+  return inv.items?.reduce((sum, i) => {
+    const sub = i.quantity * i.unitPrice;
+    return sum + sub + (sub * i.tax / 100);
+  }, 0) || 0;
+}
+
+function statusBadge(status) {
+  return `<span class="status-badge status-${status}"><span class="dot"></span>${status}</span>`;
+}
+
+function renderTable(invoices) {
+  const tbody = document.getElementById('invoiceTable');
+  if (!invoices.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><h3>No invoices found</h3><p>Create your first invoice using the "New Invoice" button</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = invoices.map(inv => {
+    const total = calcTotal(inv);
+    return `
+      <tr onclick="viewInvoice('${inv._id}')">
+        <td><span class="inv-number">${inv.invoiceNumber}</span></td>
+        <td>
+          <div class="customer-name">${inv.customer?.name || '—'}</div>
+          <div class="customer-email">${inv.customer?.email || ''}</div>
+        </td>
+        <td>${fmtDate(inv.issueDate)}</td>
+        <td>${fmtDate(inv.dueDate)}</td>
+        <td><span class="amount">${fmt(total)}</span></td>
+        <td>${statusBadge(inv.status)}</td>
+        <td onclick="event.stopPropagation()">
+          <button class="action-btn" onclick="viewInvoice('${inv._id}')">View</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  filterInvoices();
+}
+
+function filterInvoices() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = allInvoices;
+  if (currentFilter !== 'all') filtered = filtered.filter(i => i.status === currentFilter);
+  if (q) filtered = filtered.filter(i =>
+    i.invoiceNumber?.toLowerCase().includes(q) ||
+    i.customer?.name?.toLowerCase().includes(q) ||
+    i.customer?.email?.toLowerCase().includes(q)
+  );
+  renderTable(filtered);
+}
+
+function viewInvoice(id) {
+  window.location.href = `invoice-view.html?id=${id}`;
+}
+
+function updateStats(invoices) {
+  const byStatus = (s) => invoices.filter(i => i.status === s);
+  const totalAmt = (list) => list.reduce((s, i) => s + calcTotal(i), 0);
+
+  document.getElementById('totalCount').textContent = invoices.length;
+
+  const paid = byStatus('paid');
+  document.getElementById('paidAmount').textContent = fmt(totalAmt(paid));
+  document.getElementById('paidCount').textContent = `${paid.length} invoice${paid.length !== 1 ? 's' : ''}`;
+
+  const pending = byStatus('pending');
+  document.getElementById('pendingAmount').textContent = fmt(totalAmt(pending));
+  document.getElementById('pendingCount').textContent = `${pending.length} invoice${pending.length !== 1 ? 's' : ''}`;
+
+  const overdue = byStatus('overdue');
+  document.getElementById('overdueAmount').textContent = fmt(totalAmt(overdue));
+  document.getElementById('overdueCount').textContent = `${overdue.length} invoice${overdue.length !== 1 ? 's' : ''}`;
+}
+
+async function loadInvoices() {
+  try {
+    const res = await fetch(`${API}/invoices`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.status === 401) { logout(); return; }
+    allInvoices = await res.json();
+    updateStats(allInvoices);
+    filterInvoices();
+  } catch (err) {
+    document.getElementById('invoiceTable').innerHTML = `<tr><td colspan="7" class="loading" style="color:red">Error loading invoices. Is the backend running?</td></tr>`;
+  }
+}
+
+loadInvoices();
+</script>
+</body>
+</html>

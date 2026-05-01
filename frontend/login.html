@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InvoicePro — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #714B67;
+    --primary-dark: #5a3a52;
+    --accent: #00A09D;
+    --bg: #F5F5F5;
+    --white: #FFFFFF;
+    --text: #2c2c2c;
+    --muted: #6c757d;
+    --border: #dee2e6;
+    --error: #dc3545;
+    --shadow: 0 8px 32px rgba(113,75,103,0.15);
+  }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(113,75,103,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(0,160,157,0.06) 0%, transparent 50%);
+  }
+  .login-container {
+    display: flex;
+    width: 900px;
+    min-height: 550px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: var(--white);
+  }
+  .login-left {
+    flex: 1;
+    background: linear-gradient(145deg, var(--primary) 0%, var(--primary-dark) 100%);
+    padding: 60px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .login-left::before {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    top: -80px; right: -80px;
+  }
+  .login-left::after {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(0,160,157,0.2);
+    bottom: -50px; left: -30px;
+  }
+  .brand { position: relative; z-index: 1; }
+  .brand-logo {
+    width: 52px; height: 52px;
+    background: white;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .brand-logo svg { width: 30px; height: 30px; }
+  .brand h1 { font-size: 28px; font-weight: 700; color: white; margin-bottom: 8px; }
+  .brand p { font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+  .left-footer { position: relative; z-index: 1; }
+  .features { list-style: none; }
+  .features li {
+    display: flex; align-items: center; gap: 12px;
+    color: rgba(255,255,255,0.85);
+    font-size: 14px; padding: 8px 0;
+  }
+  .features li span.dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%; flex-shrink: 0;
+  }
+  .login-right {
+    flex: 1;
+    padding: 60px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .login-right h2 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .login-right .sub { font-size: 14px; color: var(--muted); margin-bottom: 36px; }
+  .form-group { margin-bottom: 20px; }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 7px; letter-spacing: 0.3px; }
+  input[type="email"], input[type="password"], input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    transition: all 0.2s;
+    background: #fafafa;
+  }
+  input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(113,75,103,0.08); }
+  .btn-login {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    letter-spacing: 0.3px;
+  }
+  .btn-login:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(113,75,103,0.35); }
+  .btn-login:active { transform: translateY(0); }
+  .divider { text-align: center; margin: 20px 0; color: var(--muted); font-size: 13px; position: relative; }
+  .divider::before, .divider::after {
+    content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--border);
+  }
+  .divider::before { left: 0; } .divider::after { right: 0; }
+  .switch-link { text-align: center; font-size: 13px; color: var(--muted); }
+  .switch-link a { color: var(--primary); text-decoration: none; font-weight: 600; }
+  .alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .alert-error { background: #fff5f5; border: 1px solid #fecaca; color: var(--error); display: block; }
+  .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; display: block; }
+  .demo-badge {
+    background: rgba(0,160,157,0.1);
+    border: 1px solid rgba(0,160,157,0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: var(--accent);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .demo-badge strong { display: block; margin-bottom: 3px; }
+  #loading { display: none; }
+  @media (max-width: 768px) {
+    .login-container { flex-direction: column; width: 95%; }
+    .login-left { padding: 40px 30px; }
+    .login-right { padding: 40px 30px; }
+  }
+</style>
+</head>
+<body>
+<div class="login-container">
+  <!-- Left Panel -->
+  <div class="login-left">
+    <div class="brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="24" height="24" rx="4" fill="#714B67"/>
+          <path d="M8 10h14M8 15h10M8 20h7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>InvoicePro</h1>
+      <p>Professional invoice management for growing businesses</p>
+    </div>
+    <div class="left-footer">
+      <ul class="features">
+        <li><span class="dot"></span> Create & manage invoices instantly</li>
+        <li><span class="dot"></span> Track payments & overdue bills</li>
+        <li><span class="dot"></span> GST-ready with auto tax calculation</li>
+        <li><span class="dot"></span> Beautiful PDF export & sharing</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="login-right">
+    <div id="loginForm">
+      <h2>Welcome back 👋</h2>
+      <p class="sub">Sign in to your InvoicePro account</p>
+      
+      <div class="demo-badge">
+        <strong>🎯 Demo Credentials</strong>
+        demo@invoice.com &nbsp;/&nbsp; demo123
+      </div>
+
+      <div id="alertBox" class="alert" style="display:none;"></div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com" value="demo@invoice.com">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" value="demo123">
+      </div>
+      <button class="btn-login" onclick="handleLogin()" id="loginBtn">Sign In</button>
+      <div style="height:16px;"></div>
+      <div class="switch-link">Don't have an account? <a href="#" onclick="showRegister()">Create one</a></div>
+    </div>
+
+    <div id="registerForm" style="display:none;">
+      <h2>Create Account</h2>
+      <p class="sub">Start managing invoices for free</p>
+
+      <div id="alertBox2" class="alert" style="display:none;"></div>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="regName" placeholder="Rahul Sharma">
+      </div>
+      <div class="form-group">
+        <label>Company Name</label>
+        <input type="text" id="regCompany" placeholder="Sharma Enterprises">
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="regEmail" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="regPassword" placeholder="Create a password">
+      </div>
+      <button class="btn-login" onclick="handleRegister()">Create Account</button>
+      <div style="height:16px;"></div>
+      <div class="switch-link">Already have an account? <a href="#" onclick="showLogin()">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:5000/api';
+
+function showRegister() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'block';
+}
+function showLogin() {
+  document.getElementById('registerForm').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+}
+
+function showAlert(id, message, type) {
+  const el = document.getElementById(id);
+  el.className = `alert alert-${type}`;
+  el.textContent = message;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 4000);
+}
+
+async function handleLogin() {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('loginBtn');
+
+  if (!email || !password) return showAlert('alertBox', 'Please fill in all fields', 'error');
+
+  btn.textContent = 'Signing in...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message);
+
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    window.location.href = 'invoice-list.html';
+  } catch (err) {
+    showAlert('alertBox', err.message, 'error');
+    btn.textContent = 'Sign In';
+    btn.disabled = false;
+  }
+}
+
+async function handleRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const company = document.getElementById('regCompany').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+
+  if (!name || !email || !password) return showAlert('alertBox2', 'Please fill required fields', 'error');
+
+  try {
+    const res = await fetch(`${API}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, company, email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    window.location.href = 'invoice-list.html';
+  } catch (err) {
+    showAlert('alertBox2', err.message, 'error');
+  }
+}
+
+// If already logged in, redirect
+if (localStorage.getItem('token')) {
+  window.location.href = 'invoice-list.html';
+}
+
+// Allow Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('loginForm').style.display !== 'none') handleLogin();
+  }
+});
+</script>
+</body>
+</html>
