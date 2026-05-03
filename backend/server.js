@@ -15,8 +15,7 @@ app.use(cors({
 app.use(express.json());
 
 // ✅ FIX: Correct frontend path for Render
-const frontendPath = path.join(process.cwd(), 'frontend');
-
+const frontendPath = path.join(__dirname, '../frontend');
 // Serve static files
 app.use(express.static(frontendPath));
 
