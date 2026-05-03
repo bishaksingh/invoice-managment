@@ -38,7 +38,7 @@ app.get('/invoice', (req, res) => {
 });
 
 // ✅ OPTIONAL: fallback route (prevents "Not Found")
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(frontendPath, 'login.html'));
 });
 
