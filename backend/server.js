@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
+// ✅ Middleware
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -14,22 +14,39 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Frontend serve karo
-app.use(express.static(path.join(__dirname, '../frontend')));
+// ✅ FIX: Correct frontend path for Render
+const frontendPath = path.join(process.cwd(), 'frontend');
 
-// API Routes
+// Serve static files
+app.use(express.static(frontendPath));
+
+// ✅ API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/invoices', require('./routes/invoices'));
 
-// Frontend routes
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../frontend/login.html')));
-app.get('/invoices', (req, res) => res.sendFile(path.join(__dirname, '../frontend/invoice-list.html')));
-app.get('/invoice', (req, res) => res.sendFile(path.join(__dirname, '../frontend/invoice-view.html')));
+// ✅ Frontend routes (Render safe)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'login.html'));
+});
 
-// MongoDB Connect
+app.get('/invoices', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'invoice-list.html'));
+});
+
+app.get('/invoice', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'invoice-view.html'));
+});
+
+// ✅ OPTIONAL: fallback route (prevents "Not Found")
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'login.html'));
+});
+
+// ✅ MongoDB Connect
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch(err => console.error('❌ MongoDB Error:', err));
 
+// ✅ PORT (Render compatible)
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
