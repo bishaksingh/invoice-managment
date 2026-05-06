@@ -31,8 +31,9 @@ const transporter = nodemailer.createTransport({
   secure: process.env.EMAIL_PORT === '465',
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,   // Gmail App Password (not your login password)
+    pass: process.env.EMAIL_PASS,
   },
+  family: 4,   // ← yeh line add karo — IPv4 force karta hai
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
