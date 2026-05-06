@@ -15,7 +15,9 @@ app.use(cors({
 app.use(express.json());
 
 // ✅ FIX: Correct frontend path for Render
-const frontendPath = path.join(__dirname, '../frontend');
+const frontendPath = process.env.RENDER 
+  ? path.join('/opt/render/project/src/frontend')
+  : path.join(__dirname, '../frontend');
 // Serve static files
 app.use(express.static(frontendPath));
 
@@ -25,7 +27,7 @@ app.use('/api/invoices', require('./routes/invoices'));
 
 // ✅ Frontend routes (Render safe)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'login.html'));
+  res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 app.get('/invoices', (req, res) => {
@@ -38,7 +40,7 @@ app.get('/invoice', (req, res) => {
 
 // ✅ OPTIONAL: fallback route (prevents "Not Found")
 app.use((req, res) => {
-  res.sendFile(path.join(frontendPath, 'login.html'));
+  res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 // ✅ MongoDB Connect
