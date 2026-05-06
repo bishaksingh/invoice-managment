@@ -270,7 +270,7 @@
 </div>
 
 <script>
-const API = 'http://localhost:5000/api';
+const API = 'https://invoice-managment-6nuz.onrender.com/api';
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 if (!token) window.location.href = 'login.html';
@@ -479,7 +479,7 @@ async function downloadExcel() {
   payload.address = document.getElementById('companyAddressDisplay').textContent;
 
   try {
-    const res = await fetch('http://127.0.0.1:5000/generate-excel', {
+    const res = await fetch(`${API}/generate-excel`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
