@@ -273,7 +273,7 @@
 const API = 'https://invoice-managment-6nuz.onrender.com/api';
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
-if (!token) window.location.href = 'login.html';
+if (!token) window.location.href = 'index.html';
 
 document.getElementById('userName').textContent = user.name || 'User';
 document.getElementById('userEmail').textContent = user.email || '';
@@ -470,7 +470,7 @@ async function deleteInvoice() {
   window.location.href = 'invoice-list.html';
 }
 
-function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
 async function downloadExcel() {
   const payload = getPayload(); // your form data
