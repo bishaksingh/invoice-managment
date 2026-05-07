@@ -35,13 +35,12 @@ setInterval(() => {
 //   },
 // });
 
-// Purana nodemailer transporter — DELETE karo
-// const transporter = nodemailer.createTransport({...});
 
-// Naya — Brevo HTTP API
-const Brevo = require('@getbrevo/brevo');
-const brevoClient = new Brevo.TransactionalEmailsApi();
-brevoClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
+// NAYA — yeh daalo
+const SibApiV3Sdk = require('@getbrevo/brevo');
+const brevoApi = new SibApiV3Sdk.TransactionalEmailsApi();
+const apiKey = brevoApi.authentications['api-key'];
+apiKey.apiKey = process.env.BREVO_API_KEY;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -177,12 +176,13 @@ router.post('/forgot-password', async (req, res) => {
     });
 
     // Send email
-const sendSmtpEmail = new Brevo.SendSmtpEmail();
+// NAYA — yeh daalo
+const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
 sendSmtpEmail.subject = '🔐 Your InvoicePro Password Reset OTP';
 sendSmtpEmail.htmlContent = buildOtpEmail(otp, expiryMins);
 sendSmtpEmail.sender = { name: 'InvoicePro', email: process.env.EMAIL_FROM };
 sendSmtpEmail.to = [{ email: email }];
-await brevoClient.sendTransacEmail(sendSmtpEmail);
+await brevoApi.sendTransacEmail(sendSmtpEmail);
 
     res.json({ message: 'OTP sent successfully' });
   } catch (err) {
