@@ -25,15 +25,15 @@ setInterval(() => {
 // Nodemailer transporter
 // Set these in your .env file (see bottom of this file for reference)
 // ─────────────────────────────────────────────────────────────────────────────
+// NAYA — yeh daalo
 const transporter = nodemailer.createTransport({
-  host:   process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port:   parseInt(process.env.EMAIL_PORT || '587'),
-  secure: process.env.EMAIL_PORT === '465',
+  host:   process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
+  port:   parseInt(process.env.EMAIL_PORT || '2525'),
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  family: 4,   // ← yeh line add karo — IPv4 force karta hai
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
