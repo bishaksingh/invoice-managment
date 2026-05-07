@@ -2,7 +2,6 @@ const express    = require('express');
 const router     = express.Router();
 const bcrypt     = require('bcryptjs');
 const jwt        = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 const User       = require('../models/User');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'invoicesecret2025';
@@ -26,15 +25,23 @@ setInterval(() => {
 // Set these in your .env file (see bottom of this file for reference)
 // ─────────────────────────────────────────────────────────────────────────────
 // NAYA — yeh daalo
-const transporter = nodemailer.createTransport({
-  host:   process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
-  port:   parseInt(process.env.EMAIL_PORT || '2525'),
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   host:   process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
+//   port:   parseInt(process.env.EMAIL_PORT || '2525'),
+//   secure: false,
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
+
+// Purana nodemailer transporter — DELETE karo
+// const transporter = nodemailer.createTransport({...});
+
+// Naya — Brevo HTTP API
+const Brevo = require('@getbrevo/brevo');
+const brevoClient = new Brevo.TransactionalEmailsApi();
+brevoClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -170,12 +177,12 @@ router.post('/forgot-password', async (req, res) => {
     });
 
     // Send email
-    await transporter.sendMail({
-      from:    process.env.EMAIL_FROM || `"InvoicePro" <${process.env.EMAIL_USER}>`,
-      to:      email,
-      subject: '🔐 Your InvoicePro Password Reset OTP',
-      html:    buildOtpEmail(otp, expiryMins),
-    });
+const sendSmtpEmail = new Brevo.SendSmtpEmail();
+sendSmtpEmail.subject = '🔐 Your InvoicePro Password Reset OTP';
+sendSmtpEmail.htmlContent = buildOtpEmail(otp, expiryMins);
+sendSmtpEmail.sender = { name: 'InvoicePro', email: process.env.EMAIL_FROM };
+sendSmtpEmail.to = [{ email: email }];
+await brevoClient.sendTransacEmail(sendSmtpEmail);
 
     res.json({ message: 'OTP sent successfully' });
   } catch (err) {
