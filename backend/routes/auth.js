@@ -21,25 +21,11 @@ setInterval(() => {
 }, 15 * 60 * 1000);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Nodemailer transporter
-// Set these in your .env file (see bottom of this file for reference)
+// Brevo v5 setup
 // ─────────────────────────────────────────────────────────────────────────────
-// NAYA — yeh daalo
-// const transporter = nodemailer.createTransport({
-//   host:   process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
-//   port:   parseInt(process.env.EMAIL_PORT || '2525'),
-//   secure: false,
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-// });
+const { BrevoClient } = require('@getbrevo/brevo');
+const brevoClient = new BrevoClient({ apiKey: process.env.BREVO_API_KEY });
 
-
-// NAYA — yeh daalo
-// NEW — correct for @getbrevo/brevo v5
-const { TransactionalEmailsApi, SendSmtpEmail: BrevoEmail, Configuration } = require('@getbrevo/brevo');
-const brevoApi = new TransactionalEmailsApi(new Configuration({ apiKey: process.env.BREVO_API_KEY }));
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
@@ -173,15 +159,13 @@ router.post('/forgot-password', async (req, res) => {
       attempts:  0,
     });
 
-    // Send email
-// NAYA — yeh daalo
-// NEW
-const sendSmtpEmail = new Brevo.SendSmtpEmail();
-sendSmtpEmail.subject = '🔐 Your InvoicePro Password Reset OTP';
-sendSmtpEmail.htmlContent = buildOtpEmail(otp, expiryMins);
-sendSmtpEmail.sender = { name: 'InvoicePro', email: process.env.EMAIL_FROM };
-sendSmtpEmail.to = [{ email: email }];
-await brevoApi.sendTransacEmail(sendSmtpEmail);
+    // Send email via Brevo v5
+    await brevoClient.transactionalEmails.sendTransacEmail({
+      subject:     '🔐 Your InvoicePro Password Reset OTP',
+      htmlContent: buildOtpEmail(otp, expiryMins),
+      sender:      { name: 'InvoicePro', email: process.env.EMAIL_FROM },
+      to:          [{ email: email }],
+    });
 
     res.json({ message: 'OTP sent successfully' });
   } catch (err) {
@@ -253,7 +237,7 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ message: 'Session expired. Please start over.' });
     }
 
-    // Hash and save new password — same salt rounds as your register route (10)
+    // Hash and save new password
     const hashed = await bcrypt.hash(newPassword, 10);
     await User.findOneAndUpdate({ email }, { password: hashed });
 
@@ -270,15 +254,10 @@ router.post('/reset-password', async (req, res) => {
 module.exports = router;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Required .env variables (add these to your existing .env file):
+// Required .env variables:
 //
-//   EMAIL_HOST=smtp.gmail.com
-//   EMAIL_PORT=587
-//   EMAIL_USER=your@gmail.com
-//   EMAIL_PASS=xxxx xxxx xxxx xxxx   ← Gmail App Password (16 chars)
-//   EMAIL_FROM="InvoicePro <your@gmail.com>"
+//   JWT_SECRET=your_jwt_secret
+//   BREVO_API_KEY=your_brevo_api_key
+//   EMAIL_FROM=your@verified-sender.com
 //   OTP_EXPIRY_MINUTES=10
-//
-// Get Gmail App Password:
-//   Google Account → Security → 2-Step Verification → App Passwords
 // ─────────────────────────────────────────────────────────────────────────────
